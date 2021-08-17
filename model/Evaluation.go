@@ -1,10 +1,10 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 // swagger:model
 type Evaluation struct {
 	gorm.Model `swaggerignore:"true"`
-	Rating     int    `json:"Rating"`
+	Rating     int    `json:"Rating" binding:"required,oneof=0 1 2 3 4 5"`
 	Note       string `json:"Note"`
 }

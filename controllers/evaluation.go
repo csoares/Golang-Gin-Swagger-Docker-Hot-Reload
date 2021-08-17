@@ -9,7 +9,7 @@ import (
 )
 
 func Echo(c *gin.Context) {
-	echo := c.Param("echo")
+	echo := c.Query("name")
 
 	c.JSON(http.StatusOK, gin.H{
 		"echo": echo,
@@ -22,7 +22,7 @@ func GetAllEvaluations(c *gin.Context) {
 	services.Db.Find(&evaluations)
 
 	if len(evaluations) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "None found!"})
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Empty list!"})
 		return
 	}
 

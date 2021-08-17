@@ -6,7 +6,8 @@ import (
 	"projetoapi/services"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "gorm.io/driver/postgres"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -18,7 +19,6 @@ func init() {
 	services.Db.AutoMigrate(&model.Evaluation{})
 	services.Db.AutoMigrate(&model.Users{})
 
-	defer services.Db.Close()
 }
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 	router.Use(gin.Recovery())
 
 	// NO AUTH
-	router.GET("/echo/:echo", routes.EchoRepeat)
+	router.GET("/api/v1/echo", routes.EchoRepeat)
 
 	// AUTH
 	router.NoRoute(func(c *gin.Context) {

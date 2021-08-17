@@ -12,6 +12,7 @@ import (
 // @Produce  json
 // @Success 200 {array} model.Evaluation
 // @Router /echo [get]
+// @Param name query string false "string valid" minlength(1) maxlength(10)
 // @Failure 404 "Not found"
 func EchoRepeat(c *gin.Context) {
 	controllers.Echo(c)

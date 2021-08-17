@@ -16,9 +16,15 @@ func AuthorizationRequired() gin.HandlerFunc {
 			c.Abort()
 		} else {
 			var tokenInput, _, _ = getAuthorizationToken(c)
-			token, _ := jwt.ParseWithClaims(tokenInput, &model.Claims{}, func(token *jwt.Token) (interface{}, error) {
+			token, err := jwt.ParseWithClaims(tokenInput, &model.Claims{}, func(token *jwt.Token) (interface{}, error) {
 				return JwtKey, nil
 			})
+
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "Not authorized"})
+				c.Abort()
+				return
+			}
 
 			if claims, ok := token.Claims.(*model.Claims); ok && token.Valid {
 				//fmt.Printf("%v %v", claims.Username, claims.StandardClaims.ExpiresAt)
@@ -28,7 +34,6 @@ func AuthorizationRequired() gin.HandlerFunc {
 
 			// before request
 			c.Next()
-			defer Db.Close()
 		}
 	}
 }

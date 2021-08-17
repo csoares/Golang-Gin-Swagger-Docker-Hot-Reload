@@ -4,7 +4,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/jinzhu/gorm"
+	postgres "gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var username string
@@ -34,7 +35,11 @@ func OpenDatabase() {
 	//open a db connection
 	readProperties()
 	var err error
-	Db, err = gorm.Open("postgres", "postgres://"+username+":"+password+"@"+dbHost+":"+dbPort+"/"+dbName+"?sslmode=disable")
+	// Db, err = gorm.Open("postgres", "postgres://"+username+":"+password+"@"+dbHost+":"+dbPort+"/"+dbName+"?sslmode=disable")
+
+	dsn := "host=" + dbHost + " user=" + username + " password=" + password + " dbname=" + dbName + " port=" + dbPort + " sslmode=disable TimeZone=Europe/Lisbon"
+	Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
 	if err != nil {
 		panic("failed to connect database")
 	}

@@ -97,6 +97,13 @@ paths:
       consumes:
       - application/json
       description: Echo the data sent though the get request.
+      parameters:
+      - description: string valid
+        in: query
+        maxLength: 10
+        minLength: 5
+        name: name
+        type: string
       produces:
       - application/json
       responses:

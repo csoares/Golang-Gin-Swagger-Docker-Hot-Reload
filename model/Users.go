@@ -1,9 +1,9 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 type Users struct {
 	gorm.Model `swaggerignore:"true"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
+	Username   string `json:"username" gorm:"unique"`
+	Password   string `json:"password,omitempty"`
 }

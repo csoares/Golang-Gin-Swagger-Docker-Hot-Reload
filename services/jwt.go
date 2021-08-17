@@ -63,8 +63,10 @@ func ValidateTokenJWT(c *gin.Context) bool {
 		}
 	}
 
-	if !tkn.Valid {
-		return false
+	if tkn != nil {
+		if !tkn.Valid {
+			return false
+		}
 	}
 
 	return true
