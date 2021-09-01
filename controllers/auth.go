@@ -20,8 +20,8 @@ func CheckPasswordHash(password, hash string) bool {
 }
 
 func LoginHandler(c *gin.Context) {
-	var creds model.Users
-	var usr model.Users
+	var creds model.User
+	var usr model.User
 
 	if err := c.ShouldBindJSON(&creds); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Bad request!"})
@@ -44,7 +44,7 @@ func LoginHandler(c *gin.Context) {
 }
 
 func RegisterHandler(c *gin.Context) {
-	var creds model.Users
+	var creds model.User
 
 	if err := c.ShouldBindJSON(&creds); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Bad request!"})
@@ -64,7 +64,7 @@ func RegisterHandler(c *gin.Context) {
 
 func RefreshHandler(c *gin.Context) {
 
-	user := model.Users{
+	user := model.User{
 		Username: c.GetHeader("username"),
 	}
 

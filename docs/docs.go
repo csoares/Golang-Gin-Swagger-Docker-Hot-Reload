@@ -40,7 +40,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Users"
+                            "$ref": "#/definitions/model.User"
                         }
                     }
                 ],
@@ -112,7 +112,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Users"
+                            "$ref": "#/definitions/model.User"
                         }
                     }
                 ],
@@ -418,7 +418,7 @@ var doc = `{
                 }
             }
         },
-        "model.Users": {
+        "model.User": {
             "type": "object",
             "properties": {
                 "password": {

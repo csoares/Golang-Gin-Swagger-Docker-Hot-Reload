@@ -11,7 +11,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Router /auth/register [post]
-// @Param evaluation body model.Users true "Do register"
+// @Param evaluation body model.User true "Do register"
 // @Success 201 {object} model.Claims
 // @Failure 400 "Bad request"
 // @Failure 401 "Unauthorized"
@@ -24,7 +24,7 @@ func RegisterUser(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Router /auth/login [post]
-// @Param evaluation body model.Users true "Do login"
+// @Param evaluation body model.User true "Do login"
 // @Success 200 {object} model.Claims
 // @Failure 400 "Bad request"
 // @Failure 401 "Unauthorized"

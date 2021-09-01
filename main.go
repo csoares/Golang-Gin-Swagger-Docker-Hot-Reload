@@ -17,7 +17,7 @@ var identityKey = "id"
 func init() {
 	services.OpenDatabase()
 	services.Db.AutoMigrate(&model.Evaluation{})
-	services.Db.AutoMigrate(&model.Users{})
+	services.Db.AutoMigrate(&model.User{})
 
 }
 
