@@ -421,10 +421,10 @@ var doc = `{
         "model.User": {
             "type": "object",
             "properties": {
-                "password": {
+                "username": {
                     "type": "string"
                 },
-                "username": {
+                "password": {
                     "type": "string"
                 }
             }

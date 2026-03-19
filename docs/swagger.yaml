@@ -13,9 +13,9 @@ definitions:
     type: object
   model.User:
     properties:
-      password:
-        type: string
       username:
+        type: string
+      password:
         type: string
     type: object
 info:
