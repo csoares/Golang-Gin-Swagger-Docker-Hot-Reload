@@ -1,28 +1,11 @@
-FROM golang:1.13-alpine
+FROM golang:1.21-alpine
 
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh gcc libc-dev
 
-RUN go get -u github.com/gin-gonic/gin
-# RUN go get -u github.com/jinzhu/gorm # v1
-RUN go get -u gorm.io/gorm
-# RUN go get -u github.com/jinzhu/gorm/dialects/postgres # v1
-RUN go get -u gorm.io/driver/postgres
-RUN go get -u github.com/swaggo/gin-swagger
-RUN go get -u github.com/swaggo/swag/cmd/swag
-RUN go get -u github.com/alecthomas/template
-RUN go get -u github.com/swaggo/files
-RUN go get -u github.com/swaggo/http-swagger
-RUN go get -u github.com/gin-contrib/cors
-RUN go get -u github.com/rs/cors/wrapper/gin
-RUN go get -u github.com/dgrijalva/jwt-go
-RUN go get -u github.com/stretchr/testify
-RUN go get -u golang.org/x/crypto/bcrypt
-
-
-# HOT RELOAD
-RUN go get -u github.com/githubnemo/CompileDaemon
-
+# Install swag (swagger generator) and CompileDaemon (hot reload)
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.3 && \
+    go install github.com/githubnemo/CompileDaemon@latest
 
 # Set the Current Working Directory inside the container
 WORKDIR /go/src/projetoapi
@@ -30,20 +13,17 @@ WORKDIR /go/src/projetoapi
 # Copy everything from the current directory to the Working Directory inside the container
 COPY . .
 
+# Download dependencies and generate go.sum
+RUN go mod tidy
+
 # RUN Swagger
 RUN swag init
 
 # Build the Go app
 RUN go build -o main .
 
-# Expose port 8081 to the outside world
+# Expose port 8080 to the outside world
 EXPOSE 8080
-
-# Run the executable DEPLOYMENT
-# CMD ["./main"]
 
 # HOT RELOAD
 ENTRYPOINT CompileDaemon -log-prefix=false -build="go build ./main.go" -command="./main"
-
-
-

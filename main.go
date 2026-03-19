@@ -1,6 +1,7 @@
 package main
 
 import (
+	"projetoapi/controllers"
 	"projetoapi/model"
 	"projetoapi/routes"
 	"projetoapi/services"
@@ -18,7 +19,30 @@ func init() {
 	services.OpenDatabase()
 	services.Db.AutoMigrate(&model.Evaluation{})
 	services.Db.AutoMigrate(&model.User{})
+	seedDatabase()
+}
 
+func seedDatabase() {
+	// Seed default user
+	var count int64
+	services.Db.Model(&model.User{}).Where("username = ?", "admin").Count(&count)
+	if count == 0 {
+		hash, _ := controllers.HashPassword("admin123")
+		services.Db.Create(&model.User{Username: "admin", Password: hash})
+	}
+
+	// Seed default evaluations
+	services.Db.Model(&model.Evaluation{}).Count(&count)
+	if count == 0 {
+		evaluations := []model.Evaluation{
+			{Rating: 5, Note: "Excellent service, very satisfied!"},
+			{Rating: 4, Note: "Good experience overall."},
+			{Rating: 3, Note: "Average, could be improved."},
+			{Rating: 2, Note: "Below expectations."},
+			{Rating: 1, Note: "Very disappointing experience."},
+		}
+		services.Db.Create(&evaluations)
+	}
 }
 
 func main() {
