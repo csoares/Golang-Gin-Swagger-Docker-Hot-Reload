@@ -7,3 +7,10 @@ main
 *.dylib
 *.test
 *.out
+
+# Config files with credentials
+config/db.config
+config/secretKey.key
+
+# Claude Code memory
+.claude/

@@ -1,0 +1,6 @@
+# username, password, host, port, schema
+your_db_username
+your_db_password
+your_db_host
+5432
+your_db_name
