@@ -1,8 +1,8 @@
-package model
+package domain
 
 import "gorm.io/gorm"
 
-// swagger:model
+// Evaluation represents a user evaluation/rating in the system
 type Evaluation struct {
 	gorm.Model `swaggerignore:"true"`
 	Rating     int    `json:"Rating" binding:"required,oneof=0 1 2 3 4 5"`

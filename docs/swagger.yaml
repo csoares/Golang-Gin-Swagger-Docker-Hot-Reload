@@ -1,25 +1,96 @@
+basePath: /api/v1
 definitions:
-  model.Claims:
-    properties:
-      username:
-        type: string
-    type: object
-  model.Evaluation:
+  domain.Evaluation:
     properties:
       Note:
         type: string
       Rating:
+        enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        type: integer
+    required:
+    - Rating
+    type: object
+  dto.BatchUpdateRequest:
+    properties:
+      increment:
+        type: integer
+    required:
+    - increment
+    type: object
+  dto.CreateEvaluationRequest:
+    properties:
+      Note:
+        type: string
+      Rating:
+        enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        type: integer
+    required:
+    - Rating
+    type: object
+  dto.EvaluationResponse:
+    properties:
+      id:
+        type: integer
+      note:
+        type: string
+      rating:
         type: integer
     type: object
-  model.User:
+  dto.LoginRequest:
     properties:
-      username:
-        type: string
       password:
         type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
     type: object
+  dto.RegisterRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.UpdateEvaluationRequest:
+    properties:
+      Note:
+        type: string
+      Rating:
+        enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        type: integer
+    required:
+    - Rating
+    type: object
+host: localhost:8080
 info:
   contact: {}
+  description: Essa API permite manter todas as avaliações realizadas.
+  title: API de avaliações
+  version: "1.0"
 paths:
   /auth/login:
     post:
@@ -27,19 +98,20 @@ paths:
       - application/json
       description: Autentica o utilizador e gera o token para os próximos acessos
       parameters:
-      - description: Do login
+      - description: Login credentials
         in: body
-        name: evaluation
+        name: credentials
         required: true
         schema:
-          $ref: '#/definitions/model.User'
+          $ref: '#/definitions/dto.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Claims'
+            additionalProperties: true
+            type: object
         "400":
           description: Bad request
         "401":
@@ -62,11 +134,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Claims'
+            additionalProperties: true
+            type: object
         "400":
           description: Bad request
         "401":
           description: Unauthorized
+      security:
+      - BearerAuth: []
       summary: Atualiza token de autenticação
   /auth/register:
     post:
@@ -74,19 +149,20 @@ paths:
       - application/json
       description: Regista um utilizador
       parameters:
-      - description: Do register
+      - description: Registration data
         in: body
-        name: evaluation
+        name: user
         required: true
         schema:
-          $ref: '#/definitions/model.User'
+          $ref: '#/definitions/dto.RegisterRequest'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/model.Claims'
+            additionalProperties: true
+            type: object
         "400":
           description: Bad request
         "401":
@@ -96,12 +172,12 @@ paths:
     get:
       consumes:
       - application/json
-      description: Echo the data sent though the get request.
+      description: Echo the data sent through the get request.
       parameters:
       - description: string valid
         in: query
         maxLength: 10
-        minLength: 5
+        minLength: 1
         name: name
         type: string
       produces:
@@ -110,9 +186,8 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.Evaluation'
-            type: array
+            additionalProperties: true
+            type: object
         "404":
           description: Not found
       summary: Echo the data sent on get
@@ -120,7 +195,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Exibe a lista, sem todos os campos, de todas as avaliações
+      description: Exibe a lista de todas as avaliações
       parameters:
       - description: Token
         in: header
@@ -134,7 +209,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.Evaluation'
+              $ref: '#/definitions/domain.Evaluation'
             type: array
         "404":
           description: Not found
@@ -156,14 +231,14 @@ paths:
         name: evaluation
         required: true
         schema:
-          $ref: '#/definitions/model.Evaluation'
+          $ref: '#/definitions/dto.CreateEvaluationRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/model.Evaluation'
+            $ref: '#/definitions/dto.EvaluationResponse'
         "400":
           description: Bad request
         "404":
@@ -176,7 +251,7 @@ paths:
       consumes:
       - application/json
       description: Exclui uma avaliação realizada
-      operationId: get-string-by-int
+      operationId: delete-evaluation-by-int
       parameters:
       - description: Token
         in: header
@@ -194,7 +269,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Evaluation'
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: Not found
       security:
@@ -222,7 +299,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Evaluation'
+            $ref: '#/definitions/domain.Evaluation'
         "404":
           description: Not found
       security:
@@ -238,12 +315,12 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Udpdate evaluation
+      - description: Update evaluation
         in: body
         name: evaluation
         required: true
         schema:
-          $ref: '#/definitions/model.Evaluation'
+          $ref: '#/definitions/dto.UpdateEvaluationRequest'
       - description: Evaluation ID
         in: path
         name: id
@@ -255,7 +332,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Evaluation'
+            $ref: '#/definitions/dto.EvaluationResponse'
         "400":
           description: Bad request
         "404":
@@ -263,4 +340,102 @@ paths:
       security:
       - BearerAuth: []
       summary: Atualiza uma avaliação
+  /evaluation/audit:
+    post:
+      consumes:
+      - application/json
+      description: Demonstrates manual transaction with rollback/commit control
+      parameters:
+      - description: Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Add evaluation
+        in: body
+        name: evaluation
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateEvaluationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.EvaluationResponse'
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+      security:
+      - BearerAuth: []
+      summary: Create evaluation with audit log using transaction
+  /evaluation/batch:
+    put:
+      consumes:
+      - application/json
+      description: Demonstrates GORM Transaction handling - batch update
+      parameters:
+      - description: Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Increment value
+        in: body
+        name: increment
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BatchUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+      security:
+      - BearerAuth: []
+      summary: Batch update ratings with transaction
+  /evaluation/raw:
+    get:
+      consumes:
+      - application/json
+      description: Demonstrates GORM Raw SQL query with parameter binding
+      parameters:
+      - description: Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Minimum rating filter
+        in: query
+        name: min_rating
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Evaluation'
+            type: array
+        "500":
+          description: Internal server error
+      security:
+      - BearerAuth: []
+      summary: Get evaluations using raw SQL query
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

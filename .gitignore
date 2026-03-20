@@ -1,5 +1,7 @@
 .idea
-main
+# Binaries
+/main
+/api
 *.exe
 *.exe~
 *.dll

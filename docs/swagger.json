@@ -1,8 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Essa API permite manter todas as avaliações realizadas.",
+        "title": "API de avaliações",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
     "paths": {
         "/auth/login": {
             "post": {
@@ -16,12 +21,12 @@
                 "summary": "Realizar autenticação",
                 "parameters": [
                     {
-                        "description": "Do login",
-                        "name": "evaluation",
+                        "description": "Login credentials",
+                        "name": "credentials",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.User"
+                            "$ref": "#/definitions/dto.LoginRequest"
                         }
                     }
                 ],
@@ -29,7 +34,8 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Claims"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
@@ -43,6 +49,11 @@
         },
         "/auth/refresh_token": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Atualiza o token de autenticação do usuário",
                 "consumes": [
                     "application/json"
@@ -64,7 +75,8 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Claims"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
@@ -88,20 +100,21 @@
                 "summary": "Realizar registro",
                 "parameters": [
                     {
-                        "description": "Do register",
-                        "name": "evaluation",
+                        "description": "Registration data",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.User"
+                            "$ref": "#/definitions/dto.RegisterRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/model.Claims"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
@@ -115,7 +128,7 @@
         },
         "/echo": {
             "get": {
-                "description": "Echo the data sent though the get request.",
+                "description": "Echo the data sent through the get request.",
                 "consumes": [
                     "application/json"
                 ],
@@ -126,7 +139,7 @@
                 "parameters": [
                     {
                         "maxLength": 10,
-                        "minLength": 5,
+                        "minLength": 1,
                         "type": "string",
                         "description": "string valid",
                         "name": "name",
@@ -137,10 +150,8 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Evaluation"
-                            }
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "404": {
@@ -156,7 +167,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Exibe a lista, sem todos os campos, de todas as avaliações",
+                "description": "Exibe a lista de todas as avaliações",
                 "consumes": [
                     "application/json"
                 ],
@@ -179,7 +190,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Evaluation"
+                                "$ref": "#/definitions/domain.Evaluation"
                             }
                         }
                     },
@@ -216,7 +227,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Evaluation"
+                            "$ref": "#/definitions/dto.CreateEvaluationRequest"
                         }
                     }
                 ],
@@ -224,7 +235,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/model.Evaluation"
+                            "$ref": "#/definitions/dto.EvaluationResponse"
                         }
                     },
                     "400": {
@@ -232,6 +243,153 @@
                     },
                     "404": {
                         "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/evaluation/audit": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Demonstrates manual transaction with rollback/commit control",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create evaluation with audit log using transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Add evaluation",
+                        "name": "evaluation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateEvaluationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.EvaluationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/evaluation/batch": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Demonstrates GORM Transaction handling - batch update",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Batch update ratings with transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Increment value",
+                        "name": "increment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.BatchUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/evaluation/raw": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Demonstrates GORM Raw SQL query with parameter binding",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get evaluations using raw SQL query",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Minimum rating filter",
+                        "name": "min_rating",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Evaluation"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }
@@ -272,7 +430,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Evaluation"
+                            "$ref": "#/definitions/domain.Evaluation"
                         }
                     },
                     "404": {
@@ -303,12 +461,12 @@
                         "required": true
                     },
                     {
-                        "description": "Udpdate evaluation",
+                        "description": "Update evaluation",
                         "name": "evaluation",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Evaluation"
+                            "$ref": "#/definitions/dto.UpdateEvaluationRequest"
                         }
                     },
                     {
@@ -323,7 +481,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Evaluation"
+                            "$ref": "#/definitions/dto.EvaluationResponse"
                         }
                     },
                     "400": {
@@ -348,7 +506,7 @@
                     "application/json"
                 ],
                 "summary": "Exclui uma avaliação pelo ID",
-                "operationId": "get-string-by-int",
+                "operationId": "delete-evaluation-by-int",
                 "parameters": [
                     {
                         "type": "string",
@@ -369,7 +527,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Evaluation"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "404": {
@@ -380,35 +541,134 @@
         }
     },
     "definitions": {
-        "model.Claims": {
+        "domain.Evaluation": {
             "type": "object",
-            "properties": {
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.Evaluation": {
-            "type": "object",
+            "required": [
+                "Rating"
+            ],
             "properties": {
                 "Note": {
                     "type": "string"
                 },
                 "Rating": {
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                }
+            }
+        },
+        "dto.BatchUpdateRequest": {
+            "type": "object",
+            "required": [
+                "increment"
+            ],
+            "properties": {
+                "increment": {
                     "type": "integer"
                 }
             }
         },
-        "model.User": {
+        "dto.CreateEvaluationRequest": {
             "type": "object",
+            "required": [
+                "Rating"
+            ],
             "properties": {
-                "username": {
+                "Note": {
                     "type": "string"
                 },
+                "Rating": {
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                }
+            }
+        },
+        "dto.EvaluationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
                 "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
+        },
+        "dto.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateEvaluationRequest": {
+            "type": "object",
+            "required": [
+                "Rating"
+            ],
+            "properties": {
+                "Note": {
+                    "type": "string"
+                },
+                "Rating": {
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ]
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

@@ -17,13 +17,13 @@ COPY . .
 RUN go mod tidy
 
 # RUN Swagger
-RUN swag init
+RUN swag init -g cmd/api/main.go --output docs/
 
 # Build the Go app
-RUN go build -o main .
+RUN go build -o main ./cmd/api/
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
 # HOT RELOAD
-ENTRYPOINT CompileDaemon -log-prefix=false -build="go build ./main.go" -command="./main"
+ENTRYPOINT CompileDaemon -log-prefix=false -build="go build -o main ./cmd/api/" -command="./main"
